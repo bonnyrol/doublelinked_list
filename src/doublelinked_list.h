@@ -2,8 +2,8 @@
 #define _DOUBLELINKED_LIST
 
 typedef struct _item {
-    _item *next;
-    _item *prev;
+    struct _item *next;
+    struct _item *prev;
 } Item;
 
 typedef struct {
