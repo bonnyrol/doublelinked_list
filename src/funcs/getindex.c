@@ -9,5 +9,5 @@ int getindex(List *list, Item *item) {
         temp = item->next;
     }
 
-    return i;
+    return (temp) ? i : -1;
 }

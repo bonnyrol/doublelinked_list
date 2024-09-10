@@ -1,7 +1,15 @@
 #include "../doublelinked_list.h"
 
 Item* getitem(List *list, int n) {
-    Item *i;
+    Item *item = list->head;
 
-    return i;
+    if (n >= count(list)) {
+        item = NULL;
+    } else {
+        for (int i = 0; i < n; i++) {
+            item = item->next;
+        } 
+    }
+
+    return item;
 }
