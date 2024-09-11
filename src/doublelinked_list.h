@@ -1,6 +1,8 @@
 #ifndef _DOUBLELINKED_LIST
 #define _DOUBLELINKED_LIST
 
+#include <stdlib.h>
+
 typedef struct _item {
     struct _item *next;
     struct _item *prev;
@@ -11,7 +13,7 @@ typedef struct {
     Item *tail;
 } List;
 
-/*Добавляет в конец списока list элемент item */
+/*Добавляет в конец списка list элемент item */
 void add(List *list, Item *item);
 
 /*Удаляет из списка list элемент n*/
