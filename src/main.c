@@ -11,28 +11,28 @@ typedef struct {
     Item *tail;
 } List;
 
-/*Добавляет в конец списка list элемент item */
+/*Добавляет в конец списка list элемент item*/
 void add(List *list, Item *item);
 
-/*Удаляет из списка list элемент n*/
-void Delete(List *list, int n);
+/*Удаляет из списка list элемент по индексу n*/
+void Delete(List *list, const int n);
 
-/*Возвращает элемент n из списка list*/
-Item* getitem(List *list, int n);
+/*Возвращает элемент по индексу n из списка list*/
+Item* getitem(const List *list, const int n);
 
-/*????? ?????? ????? ?? ???? ?????? ???????*/
+/*Исключает и возвращает элемент по индексу n из списка list*/
 Item* Remove(List *list, const int n);
 
 /*Возвращает кол-во элементов списка list*/
-int count(List *list);
+int count(const List *list);
 
 /*Очищает список list*/
 void clear(List *list);
 
-/*Возвращает порядковый номер элемента item списка list*/
-int getindex(List *list, Item *item);
+/*Возвращает индекс элемента item из списка list*/
+int getindex(const List *list, const Item *item);
 
-void insert(List *list, Item *item, int n);
+void insert(List *list, Item *item, const int n);
 
 int main() {
     List list = {NULL, NULL};
@@ -50,7 +50,7 @@ int main() {
     if (item3 = &item2) {
         printf("norm\n");
     } else {
-        printf("govno\n");
+        printf("ploho\n");
     }
 
     printf("cnt: %d\n", count(&list));
@@ -70,7 +70,7 @@ void add(List *list, Item *item) {
     }
 }
 
-int count(List *list) {
+int count(const List *list) {
     int cnt = 0;
     Item *item = list->head;
     
@@ -82,7 +82,7 @@ int count(List *list) {
     return cnt;
 }
 
-int getindex(List *list, Item *item) {
+int getindex(const List *list, const Item *item) {
     int i = 0;
     Item *temp = list->head;
 
@@ -94,7 +94,7 @@ int getindex(List *list, Item *item) {
     return (temp) ? i : -1;
 }
 
-Item* getitem(List *list, int n) {
+Item* getitem(const List *list, const int n) {
     Item *item = list->head;
 
     if (n >= count(list)) {
@@ -143,10 +143,10 @@ void clear(List *list) {
     
 }
 
-void Delete(List *list, int n) {
+void Delete(List *list, const int n) {
     
 }
 
-void insert(List *list, Item *item, int n) {
+void insert(List *list, Item *item, const int n) {
     
 }
