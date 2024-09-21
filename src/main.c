@@ -32,7 +32,13 @@ void clear(List *list);
 /*Возвращает индекс элемента item из списка list*/
 int getindex(const List *list, const Item *item);
 
+/*idk*/
 void insert(List *list, Item *item, const int n);
+
+void cls();
+
+/*Вывод списка list в терминал*/
+void listout(const List *list);
 
 int main() {
     List list = {NULL, NULL};
@@ -40,9 +46,15 @@ int main() {
     Item item1 = {NULL, NULL};
     Item item2 = {NULL, NULL};
     Item *item3;
+
+#ifdef _WIN64
+    system("chcp 65001 > NUL");
+#endif
+
     add(&list, &item0);
     add(&list, &item1);
     add(&list, &item2);
+    listout(&list);
     int k = count(&list);
     printf("cnt before removal: %d\n", k); 
 
@@ -54,6 +66,10 @@ int main() {
     }
 
     printf("cnt: %d\n", count(&list));
+
+#ifdef _WIN64
+    system("pause");
+#endif
 
     return 0;
 }
@@ -119,7 +135,7 @@ Item* Remove(List *list, const int n) {
 
             if (list->head == list->tail) { // Если у нас один элемент в списке
                 list->head = NULL, list->tail = NULL;
-            } else if (n == 0) { // Если мы убираем первый элемент
+            } else if (list->head == result) { // Если мы убираем первый элемент
                 temp = result->next;
                 temp->prev = NULL;
                 list->head = temp;
@@ -140,13 +156,55 @@ Item* Remove(List *list, const int n) {
 }
 
 void clear(List *list) {
-    
+    Item *item = list->head;
+    Item *next = item->next;
+    while (item) {
+        Item *next = item->next;
+        free(item);
+        item = next;
+    }
 }
 
 void Delete(List *list, const int n) {
-    
+    Item *item = Remove(list, n);
+    if (item) {
+        free(item);
+    } 
 }
 
 void insert(List *list, Item *item, const int n) {
-    
+    // if (list && item && n >= 0) {
+    //     Item *temp = getitem(list, n);
+
+    //     if (temp) {
+    //         /*Если список пуст или мы вставляем в конец списка*/
+    //         if ((!list->head && !list->tail) || list->tail == temp) {
+    //             add(list, item);
+    //         } else if () {
+
+    //         } else {
+
+    //         }
+    //     }
+    // }
+}
+
+void listout(const List *list) {
+    Item *item = list->head;
+    int i = 0;
+
+    printf("List: %p\tHead: %p\tTail: %p\n", list, list->head, list->tail);
+    printf("№\titem\tprev\tnext\n");
+    while (item) {
+        printf("%d\t%p\t%p\t%p\n", i, item, item->prev, item->next);
+        i++, item = item->next;
+    }
+}
+
+void cls() {
+#ifdef _WIN64
+    system("cls");
+#elif defined __linux__
+    system("clear");
+#endif
 }
