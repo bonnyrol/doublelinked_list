@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define EPS 1e-52
 typedef struct _item {
     struct _item *next;
     struct _item *prev;
@@ -38,9 +39,12 @@ void insert(List *list, Item *item, const int n);
 /*Функиця для очитски экрана*/
 void cls();
 
+/*Вывод меню в консоль*/
 void menu();
 
-/*Вывод списка list в терминал*/
+int input_choise();
+
+/*Вывод списка list в консоль*/
 void listout(const List *list);
 
 int main() {
@@ -57,6 +61,9 @@ int main() {
     add(&list, &item0);
     add(&list, &item1);
     add(&list, &item2);
+
+    menu();
+    printf("%d\n", input_choise());
 
 #ifdef _WIN64
     system("pause");
@@ -211,4 +218,22 @@ void menu() {
     printf("8. Удаление элемента из списка\n");
     printf("9. Полная очистка списка\n");
     printf("0. Выход из программы\n");
+}
+
+int input_choise() {
+    double buff = 0;
+    char ch = '\0';
+    int flag = 1;
+
+    while (flag) {
+        printf("Выберите пункт: ");
+        if (scanf("%lf", &buff) != 1 || buff - (int)buff != 0 || (int)buff < 0 || (int)buff > 9) {
+            printf("Некорректный ввод, попробуй снова\n");
+            while ((ch = getchar()) != '\n' && ch != EOF);
+        } else {
+            flag = 0;
+        }
+    }  
+
+    return (int)buff;
 }
