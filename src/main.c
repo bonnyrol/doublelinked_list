@@ -35,7 +35,10 @@ int getindex(const List *list, const Item *item);
 /*idk*/
 void insert(List *list, Item *item, const int n);
 
+/*Функиця для очитски экрана*/
 void cls();
+
+void menu();
 
 /*Вывод списка list в терминал*/
 void listout(const List *list);
@@ -54,18 +57,6 @@ int main() {
     add(&list, &item0);
     add(&list, &item1);
     add(&list, &item2);
-    listout(&list);
-    int k = count(&list);
-    printf("cnt before removal: %d\n", k); 
-
-    item3 = Remove(&list, 2); 
-    if (item3 = &item2) {
-        printf("norm\n");
-    } else {
-        printf("ploho\n");
-    }
-
-    printf("cnt: %d\n", count(&list));
 
 #ifdef _WIN64
     system("pause");
@@ -207,4 +198,17 @@ void cls() {
 #elif defined __linux__
     system("clear");
 #endif
+}
+
+void menu() {
+    printf("1. Вывод всех элементов на экран\n");
+    printf("2. Добавление элемента в список\n");
+    printf("3. Добавление элемента в любое место списка\n");
+    printf("4. Подсчёт всех элементов в списке\n");
+    printf("5. Поиск элемента по индексу\n");
+    printf("6. Поиска индекса по элементу\n");
+    printf("7. Исключение элемента из списка\n");
+    printf("8. Удаление элемента из списка\n");
+    printf("9. Полная очистка списка\n");
+    printf("0. Выход из программы\n");
 }
