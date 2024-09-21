@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define EPS 1e-52
 typedef struct _item {
     struct _item *next;
     struct _item *prev;
@@ -42,7 +41,10 @@ void cls();
 /*Вывод меню в консоль*/
 void menu();
 
+/*Ввод пункта меню*/
 int input_choise();
+
+int entry(List *l, Item *i);
 
 /*Вывод списка list в консоль*/
 void listout(const List *list);
@@ -62,8 +64,9 @@ int main() {
     add(&list, &item1);
     add(&list, &item2);
 
-    menu();
-    printf("%d\n", input_choise());
+    while (entry(&list, &item1));
+    
+
 
 #ifdef _WIN64
     system("pause");
@@ -227,7 +230,7 @@ int input_choise() {
 
     while (flag) {
         printf("Выберите пункт: ");
-        if (scanf("%lf", &buff) != 1 || buff - (int)buff != 0 || (int)buff < 0 || (int)buff > 9) {
+        if (scanf("%lf", &buff) != 1 || buff - (int)buff != 0) {
             printf("Некорректный ввод, попробуй снова\n");
             while ((ch = getchar()) != '\n' && ch != EOF);
         } else {
@@ -236,4 +239,49 @@ int input_choise() {
     }  
 
     return (int)buff;
+}
+
+int entry(List *l, Item *i) {
+    int code = 1;
+
+    menu();
+
+    switch (input_choise()) {
+    case 0:
+        printf("exit\n");
+        code = 0;
+        break;
+    case 1:
+        printf("output\n");
+        break;
+    case 2:
+        printf("add\n");
+        break;
+    case 3:
+        printf("insert\n");
+        break;
+    case 4:
+        printf("count\n");
+        break;
+    case 5:
+        printf("getitem\n");
+        break;
+    case 6:
+        printf("getindex\n");
+        break;
+    case 7:
+        printf("remove\n");
+        break;
+    case 8:
+        printf("delete\n");
+        break;
+    case 9:
+        printf("clear");
+        break;
+    default:
+        printf("Такого пункта меню нет, попробуй снова\n");
+        break;
+    }
+
+    return code;
 }
