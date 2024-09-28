@@ -32,7 +32,7 @@ void clear(List *list);
 /*Возвращает индекс элемента item из списка list*/
 int getindex(const List *list, const Item *item);
 
-/*idk*/
+/*Вставка элемента item в индекс n в список list */
 void insert(List *list, Item *item, const int n);
 
 /*Функиця для очитски экрана*/
@@ -41,33 +41,31 @@ void cls();
 /*Вывод меню в консоль*/
 void menu();
 
-/*Ввод пункта меню*/
-int input_choise();
+/*Возвращает введённое целочисленное значение*/
+int input(char *msg);
 
-int entry(List *l, Item *i);
+int entry(List *list);
 
 /*Вывод списка list в консоль*/
 void listout(const List *list);
 
+void print_item(Item *item);
+
+/*Выделяет память под элемент item, возвращает 1 в случае ошибки*/
+int create_item(Item **item);
+
+/*Возвращает истинну если список list пуст*/
+int is_empty(List *list);
+
 int main() {
     List list = {NULL, NULL};
-    Item item0 = {NULL, NULL};
-    Item item1 = {NULL, NULL};
-    Item item2 = {NULL, NULL};
-    Item *item3;
 
 #ifdef _WIN64
     system("chcp 65001 > NUL");
 #endif
 
-    add(&list, &item0);
-    add(&list, &item1);
-    add(&list, &item2);
-
-    while (entry(&list, &item1));
+    while (entry(&list));
     
-
-
 #ifdef _WIN64
     system("pause");
 #endif
@@ -76,24 +74,29 @@ int main() {
 }
 
 void add(List *list, Item *item) {
-    if (!list->head) {
-        list->head = item, list->tail = item;
-        item->next = NULL, item->prev = NULL; 
-    } else {
-        item->prev = list->tail;
-        list->tail->next = item;
-        item->next = NULL;
-        list->tail = item;
+    if (list && item) {
+        if (is_empty(list)) {
+            list->head = item, list->tail = item;
+            item->next = NULL, item->prev = NULL; 
+        } else {
+            item->prev = list->tail;
+            list->tail->next = item;
+            item->next = NULL;
+            list->tail = item;
+        }
     }
 }
 
 int count(const List *list) {
     int cnt = 0;
-    Item *item = list->head;
-    
-    while (item) {
-        cnt++;
-        item = item->next;
+
+    if (list) {
+        Item *item = list->head;
+        
+        while (item) {
+            cnt++;
+            item = item->next;
+        }
     }
 
     return cnt;
@@ -101,25 +104,31 @@ int count(const List *list) {
 
 int getindex(const List *list, const Item *item) {
     int i = 0;
-    Item *temp = list->head;
+    Item *temp = NULL;
 
-    while (temp != item && temp) {
-        i++;
-        temp = temp->next;
+    if (list && item) {
+        temp = list->head;
+
+        while (temp != item && temp) {
+            i++;
+            temp = temp->next;
+        }
     }
 
     return (temp) ? i : -1;
 }
 
 Item* getitem(const List *list, const int n) {
-    Item *item = list->head;
+    Item *item = NULL;
 
-    if (n >= count(list)) {
-        item = NULL;
-    } else {
-        for (int i = 0; i < n; i++) {
+    if (list) {
+        item = list->head;
+        int i = 0;
+
+        while (item && n != i) {
+            i++;
             item = item->next;
-        } 
+        }
     }
 
     return item;
@@ -129,7 +138,7 @@ Item* Remove(List *list, const int n) {
     Item* result = NULL;
 
     /*Проверка входных параметров*/
-    if (list && n >= 0) { 
+    if (list) { 
         result = getitem(list, n);
         if (result) { // Продолжаем работу если элемент с индексом n есть в списке
             Item *temp = NULL;
@@ -157,37 +166,46 @@ Item* Remove(List *list, const int n) {
 }
 
 void clear(List *list) {
-    Item *item = list->head;
-    Item *next = item->next;
-    while (item) {
-        Item *next = item->next;
-        free(item);
-        item = next;
+    if (list) {
+        // Item *temp = list->head;
+        //Item *next = NULL;
+
+        while (list->head) {
+            Delete(list, 0);
+        }
+
+        list->head = NULL, list->tail = NULL;
     }
 }
 
 void Delete(List *list, const int n) {
-    Item *item = Remove(list, n);
-    if (item) {
-        free(item);
-    } 
+    if (list) {
+        Item *item = Remove(list, n);
+        if (item) {
+            free(item);
+        } 
+    }
 }
 
 void insert(List *list, Item *item, const int n) {
-    // if (list && item && n >= 0) {
-    //     Item *temp = getitem(list, n);
-
-    //     if (temp) {
-    //         /*Если список пуст или мы вставляем в конец списка*/
-    //         if ((!list->head && !list->tail) || list->tail == temp) {
-    //             add(list, item);
-    //         } else if () {
-
-    //         } else {
-
-    //         }
-    //     }
-    // }
+    if (list && item) {
+        Item *temp = getitem(list, n);
+        
+        /*Если список пуст или мы вставляем в конец списка*/
+        if (is_empty(list) || !temp) {
+            add(list, item);
+        } else if (temp == list->head) {
+            item->next = list->head;
+            list->head->prev = item;
+            list->head = item;
+        } else {
+            item->prev = temp->prev;
+            item->next = temp;
+            temp->prev = item;
+            item->prev->next = item;
+            
+        }
+    }
 }
 
 void listout(const List *list) {
@@ -195,9 +213,9 @@ void listout(const List *list) {
     int i = 0;
 
     printf("List: %p\tHead: %p\tTail: %p\n", list, list->head, list->tail);
-    printf("№\titem\tprev\tnext\n");
+    printf("№\titem\t\tprev\t\tnext\n");
     while (item) {
-        printf("%d\t%p\t%p\t%p\n", i, item, item->prev, item->next);
+        printf("%d\t%016p\t%016p\t%016p\n", i, item, item->prev, item->next);
         i++, item = item->next;
     }
 }
@@ -216,20 +234,23 @@ void menu() {
     printf("3. Добавление элемента в любое место списка\n");
     printf("4. Подсчёт всех элементов в списке\n");
     printf("5. Поиск элемента по индексу\n");
-    printf("6. Поиска индекса по элементу\n");
-    printf("7. Исключение элемента из списка\n");
-    printf("8. Удаление элемента из списка\n");
-    printf("9. Полная очистка списка\n");
+    //printf("6. Поиска индекса по элементу\n"); Не имеет практической пользы для конечного пользователя
+    //printf("6. Исключение элемента из списка\n"); Утечка памяти
+    printf("6. Удаление элемента из списка\n");
+    printf("7. Полная очистка списка\n");
     printf("0. Выход из программы\n");
 }
 
-int input_choise() {
+int input(char *msg) {
     double buff = 0;
     char ch = '\0';
     int flag = 1;
 
     while (flag) {
-        printf("Выберите пункт: ");
+
+        if (msg) {
+            printf("%s", msg);
+        }
         if (scanf("%lf", &buff) != 1 || buff - (int)buff != 0) {
             printf("Некорректный ввод, попробуй снова\n");
             while ((ch = getchar()) != '\n' && ch != EOF);
@@ -241,47 +262,106 @@ int input_choise() {
     return (int)buff;
 }
 
-int entry(List *l, Item *i) {
-    int code = 1;
+int entry(List *list) {
+    int code = 1, choise = 0, n = 0;
+    char ch = '\0';
+    Item *item = NULL;
 
     menu();
+    choise = input("Выберите пункт: ");
+    cls();
 
-    switch (input_choise()) {
+    switch (choise) {
     case 0:
-        printf("exit\n");
+        if (!is_empty(list)) {
+            printf("Очистка списка перед выходом\n");
+            clear(list);
+        }
         code = 0;
         break;
     case 1:
-        printf("output\n");
+        listout(list);
         break;
     case 2:
-        printf("add\n");
+        if (!create_item(&item)) {
+            add(list, item);
+            printf("Элемент %p, добавлен в список\n", item);
+        } else {
+            printf("Memory allocation error! Please try again\n");
+        }
         break;
     case 3:
-        printf("insert\n");
+        if (!create_item(&item)) {
+            listout(list);
+            printf("Элемент для вставки: %p\n", item);
+            n = input("Введите индекс для вставки: ");
+            insert(list, item, n);
+            cls();
+            listout(list);
+        } else {
+            printf("Memory allocation error! Please try again\n");
+        }
         break;
     case 4:
-        printf("count\n");
+        printf("Количество элементов в списке: %d\n", count(list));
         break;
     case 5:
-        printf("getitem\n");
+        listout(list);
+        n = input("Введите n: ");
+        print_item(getitem(list, n));
         break;
     case 6:
-        printf("getindex\n");
+        if (!is_empty(list)) {
+            listout(list);
+            n = input("Введите индекс элемента для удаления: ");
+            Delete(list, n);    
+            cls();
+            listout(list);
+        } else {
+            printf("Нет элементов для удаления\n");
+        }
         break;
     case 7:
-        printf("remove\n");
-        break;
-    case 8:
-        printf("delete\n");
-        break;
-    case 9:
-        printf("clear");
+        if (is_empty(list)) {
+            printf("Список пуст!\n");
+        } else {
+            clear(list);
+        }
         break;
     default:
         printf("Такого пункта меню нет, попробуй снова\n");
         break;
     }
 
+    //printf("Press enter to countinue...\n");
+    // while ((ch = getchar()) != '\n' && ch != EOF);
+    // getchar();
+    // cls();
+
     return code;
 }
+
+int create_item(Item **item) {
+    int code = 0;
+
+    *item = calloc(1, sizeof(Item));
+    if (!item) {
+        code = 1;
+    }
+
+    return code;
+}
+
+void print_item(Item *item) {
+    if (!item) {
+        printf("Пустой элемент\n");
+    } else {
+        printf("%p\t%p\n", item->prev, item->next);
+    }
+}
+
+int is_empty(List *list) {
+    return (list->head == NULL && list->tail == NULL) ? 1 : 0;
+}
+
+
