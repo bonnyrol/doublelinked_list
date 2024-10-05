@@ -30,7 +30,7 @@ clean:
 	rm -r *.out
 
 leak:
-	valgrind --took=memcheck --leak-check=yes ./$(EXEC)
+	valgrind --tool=memcheck --leak-check=yes ./$(EXEC)
 
 echo:
 	@echo $(SOURCES)
