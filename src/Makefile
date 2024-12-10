@@ -2,8 +2,8 @@ CC = gcc
 CFLAGS = -Wall -Werror -Wextra
 LIB = list.a
 EXEC = main.out
-MENU = main.c
-OBJDIR = obj
+MENU = test.c
+OBJDIR = build
 WORKDIR = functions
 
 SOURCES = $(wildcard $(WORKDIR)/*.c)
@@ -22,15 +22,17 @@ $(OBJDIR)/%.o: $(WORKDIR)/%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(OBJDIR):
-	mkdir obj
+	mkdir build
 
 clean:
 	rm -rf $(OBJDIR)
-	rm -r $(LIB)
-	rm -r *.out
+	rm -f $(LIB)
+	rm -f *.out
 
 leak:
 	valgrind --tool=memcheck --leak-check=yes ./$(EXEC)
+
+rebulid: clean all
 
 echo:
 	@echo $(SOURCES)
