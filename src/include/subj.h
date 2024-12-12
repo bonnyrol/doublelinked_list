@@ -2,101 +2,82 @@
 #define SUBJ_H_
 
 #include "doublelinked.h"
-#include <stdbool.h>
+#include <string.h>
+
+#define MAX_STR_SIZE 50
 
 typedef enum {
-    //T_None, // Фигура не определена
-    T_Pawn, // Пешка
-    T_Rook, // Ладья
-    T_Knight, // Конь
-    T_Bishop, // Слон
-    T_Queen, // Ферзь(Королева)
-    T_King // Король
-} PieceType;
-
-typedef long int field;
+    T_none,
+    T_long,
+    T_double,
+    T_string,
+    T_char
+} DataType;
 
 typedef struct {
+    /* Унаследованно от Item */
     Item *next;
     Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
+
+    /* Добавленно в Base*/
+    DataType type;
+    size_t size;
 } Base;
- 
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Pawn;
 
 typedef struct {
+    /* Унаследованно от Item */
     Item *next;
     Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Rook;
+
+    /* Унаследованно от Base*/
+    DataType type;
+    size_t size;
+
+    /* Добавленно в Long*/
+    long data;
+} Long;
 
 typedef struct {
+    /* Унаследованно от Item */
     Item *next;
     Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Knight;
+
+    /* Унаследованно от Base*/
+    DataType type;
+    size_t size;
+
+    /* Добавленно в Double*/
+    double data;
+} Double;
 
 typedef struct {
+    /* Унаследованно от Item */
     Item *next;
     Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Bishop;
+
+    /* Унаследованно от Base*/
+    DataType type;
+    size_t size;
+
+    /* Добавленно в String*/
+    char str[MAX_STR_SIZE];
+} String;
 
 typedef struct {
+    /* Унаследованно от Item */
     Item *next;
     Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Queen;
 
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} King;
+    /* Унаследованно от Base*/
+    DataType type;
+    size_t size;
 
-#define CAN_MOVE_H 1 /* Может двигаться горизонтально */
-#define CAN_MOVE_V 2 /* Может двигаться вертикально */
-#define CAN_MOVE_D 4 /* Может дваигаться по диагонали */
-#define CAN_MOVE_K 8 /* Двигается как конь*/
+    /* Добавленно в Char*/
+    char ch;
+} Char;
 
-/* piece->moves = CAN_MOVE_H | CAN_MOVE_V | CAN_MOVE_D */
-
-void sort(List *l);
-Base * Create(PieceType t);
-void print(const Base *p);
-void input(Base *shape);
-
+void sort(List *l, const int mode);
+void search(const List *l, const char *value, List *out);
+Base * Create(const DataType t);
 
 #endif // SUBJ_H_

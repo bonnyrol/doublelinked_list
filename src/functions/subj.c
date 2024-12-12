@@ -1,107 +1,160 @@
 #include "../include/subj.h"
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 /* Вспомогательные, или инкапсулированные функции, которые требуются 
 * только для работы в данном контексте. Интерфейс к ним не предоставляется */
 
-static field f = 0;
-
-int get_bit(const int a, const int i) {
-    return (a & (1 << i)) >> i;
+/* Перевод данных в строку out */
+void convert_to_str(const void *data, char *out) {
+    switch (((Base *)data)->type) {
+        case T_long:
+            snprintf(out, MAX_STR_SIZE, "%ld", ((Long *)data)->data);
+            break;
+        case T_double:
+            snprintf(out, MAX_STR_SIZE, "%.2lf", ((Double *)data)->data);
+            break;
+        case T_string:
+            snprintf(out, MAX_STR_SIZE, "%s", ((String *)data)->str);
+            break;
+        case T_char:
+            snprintf(out, MAX_STR_SIZE, "%c", ((Char *)data)->ch);
+            break;
+        default:
+            break;
+    }
 }
 
-int set_bit(int a, const int i, const int bit) {
-    return (bit) ? (a | (1 << i)) : (~(1 << i) & a);
+/* Неиспользуемая функция, удалить при пуше в прод */
+// void swap(List *l, Item *a, Item *b) {
+
+//     int i = getindex(l, a), j = getindex(l, b);
+//     Item *b_temp = Remove(l, j);
+//     insert(l, b_temp, i);
+//     Item *a_temp = Remove(l, i + 1);
+//     insert(l, a_temp, j);
+
+// }
+
+Base* make_copy(const Base *item) {
+    Base *copy = Create(item->type);
+    
+    memcpy(copy, item, item->size);
+
+    return copy;
 }
 
-int convert(const void* shape) {
-    Base s = *(Base *)shape;
+int cool_comporator(const char *a, const char *b, const int mode) {
 
-    return (s.x - 'a') * 8 + s.y;
-}
+    int result = strcmp(a, b) > 0;
 
-bool check_availability(const void* shape) {
-    return !get_bit(f, convert(shape));
+    return (mode) ? !result : result;
 }
 
 /* Базовые функции */
 
-Base * Create(PieceType t) {
+Base * Create(const DataType t) {
     Base * p = NULL;
+
+    size_t size = 0;
+
     switch (t) {
-        case T_Pawn:
-            p = malloc(sizeof(Pawn));
+        case T_long:
+            size = sizeof(Long);
             break;
-        case T_Rook:
-            p = malloc(sizeof(Rook));
+        case T_double:
+            size = sizeof(Double);
             break;
-        case T_Knight:
-            p = malloc(sizeof(Knight));
+        case T_string:
+            size = sizeof(String);
             break;
-        case T_Bishop:
-            p = malloc(sizeof(Bishop));
+        case T_char:
+            size = sizeof(Char);
             break;
-        case T_Queen:
-            p = malloc(sizeof(Queen));
-            break;
-        case T_King:
-            p = malloc(sizeof(King));
+        default:
             break;
     }
+
+    if (size) {
+
+        p = calloc(1, size); // Выделяем память и заполняем всё нулями
+    }
+
     if (p) {
         p->type = t;
-        p->x = 0, p->y = 0;
-
-        if (t == T_Pawn || t == T_Rook) { // Если фигура - это пешка или ладья
-            p->moves = CAN_MOVE_V | (t == T_Rook) ? CAN_MOVE_H : 0;
-        } else if (t == T_Queen || t == T_King) { // Если фигура - это ферзь или король
-            p->moves = CAN_MOVE_H | CAN_MOVE_V | CAN_MOVE_D;
-        } else if (t == T_Bishop) { // Если наш слоняра
-            p->moves = CAN_MOVE_D;
-        } else { // Если мы не попали ни в одно из условий выше, значит текущая фигура - конь
-            p->moves = CAN_MOVE_K;
-        }
+        p->size = size;
     }
 
     return p;
 }
 
-void input(Base *shape) {
+void search(const List *l, const char *value, List *out) {
 
-
-    char ch;
-
-    printf("0 - black, 1 - white: ");
-    while (scanf("%d", (int *)&shape->color) != 1 ) {
-        printf("color govno\n");
-        while ((ch = getchar()) != '\n' && (ch != EOF));
+    /* Шаришь за законы Де Моргана??? */
+    if (!(l || value || out)) {
+        return;
     }
-    
-    while(true) {
+
+    List result = {0};
+
+    Item *temp = l->head;
+
+    while (temp) { // temp != NULL
+        char buff[MAX_STR_SIZE] = {'\0'};
+        Base *tmp = (Base *)temp;
         
+        convert_to_str(temp, buff);
 
+        /* Поиск по строгому условию */
+        // if (!strcmp(value, buff)) {
 
+        //     Base *copy = make_copy(tmp);
+
+        //     add(&result, ((Item *)copy));
+        // }
+
+        /* Нормальный поиск */
+        if (strstr(buff, value)) {
+
+            Base *copy = make_copy(tmp);
+
+            add(&result, ((Item *)copy));
+
+        }
+
+        temp = temp->next;
     }
 
-
-
-
-    // do {
-    //    int  k = scanf("%c", &shape->x);
-    //     if (k != 2) {
-    //         printf("Некорректный ввод, k = %d\n", k);
-    //     } else if (shape->x < 'a' || shape->x > 'h') {
-    //         printf("govno\n");
-    //     } else if (!check_availability(shape)) {
-    //         continue;
-    //     } else {
-    //         break;
-    //     }   
-
-    // } while (1);
-    
-    
+    *out = result;
 }
 
+/* mode = 0 - По возрастанию, mode = 1 - по убыванию */
+void sort(List *l, const int mode) {
+    List new = {0};
+    char i_buff[MAX_STR_SIZE] = {'\0'}, j_buff[MAX_STR_SIZE] = {'\0'};
+
+    insert(&new, Remove(l, 0), 0);
+
+    Item *unsorted = l->head, *sorted = NULL;
+    
+    while (unsorted) {
+        sorted = new.head;
+        convert_to_str(unsorted, i_buff), convert_to_str(sorted, j_buff);
+        while (sorted && cool_comporator(i_buff, j_buff, mode)) {
+            sorted = sorted->next;
+        }
+        if (sorted) {
+            Base *copy = make_copy((Base *)unsorted);
+            
+            insert(&new, (Item *)copy, getindex(&new, sorted));
+        } else {
+            Base *copy = make_copy((Base *)unsorted);
+
+            add(&new, (Item *)copy);
+        }
+        unsorted = unsorted->next;
+    }
+    
+    clear(l);
+    *l = new;
+}

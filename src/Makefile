@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Werror -Wextra
 LIB = list.a
 EXEC = main.out
-MENU = test.c
+MENU = main.c
 OBJDIR = build
 WORKDIR = functions
 

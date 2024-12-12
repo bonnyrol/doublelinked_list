@@ -1,48 +1,127 @@
 #include <stdio.h>
-#include "include/doublelinked.h"
+#include "include/subj.h" // Удали 'include/' перед subj.h
 
-/*Функиця для очитски экрана*/
-void cls();
+int DoMenu(const char **s, const int n) {
+    int i, choise;
+    char ch;
+    for (i = 1; i < n; i++) {
+        printf("%d. %s\n", i, s[i]);
+    }
 
-/*Вывод меню в консоль*/
-void menu();
+    while (1) {
+        int k = 0;
+        printf("Выберете пункт: ");
 
-/*Возвращает введённое целочисленное значение*/
-int input(char *msg);
+        k = scanf("%d", &choise);
+        while(((ch = getchar()) != '\n') && (ch != EOF)); // замени на fflush(stdin);
+        if (k != 1) {
+            printf("Некорректный ввод\n");
+        } else {
+            break;
+        }
+    }
 
-int entry(List *list);
-
-/*Вывод списка list в консоль*/
-void listout(const List *list);
-
-void print_item(Item *item);
-
-int main() {
-    List list = {NULL, NULL};
-
-#ifdef _WIN64
-    system("chcp 65001 > NUL");
-#endif
-
-    while (entry(&list));
-    
-#ifdef _WIN64
-    system("pause");
-#endif
-
-    return 0;
+    return choise;
 }
 
-void listout(const List *list) {
-    Item *item = list->head;
-    int i = 0;
+void PrintVal(const Base *p) {
 
-    printf("List: %p\tHead: %p\tTail: %p\n", list, list->head, list->tail);
-    printf("№\titem\t\tprev\t\tnext\n");
-    while (item) {
-        printf("%d\t%016p\t%016p\t%016p\n", i, item, item->prev, item->next);
-        i++, item = item->next;
+    if (p) {
+
+        switch (p->type) {
+        case T_char:
+            printf("%c", ((Char *)p)->ch);
+            break;
+        case T_double:
+            printf("%.2lf", ((Double *)p)->data);
+            break;
+        case T_long:
+            printf("%ld", ((Long *)p)->data);
+            break;
+        case T_string:
+            printf("%s", ((String *)p)->str);
+            break;
+        default:
+            break;
+        }
     }
+
+}
+
+void PrintType(const DataType t) {
+    switch (t) {
+        case T_char:
+            printf("Char");
+            break;
+        case T_double:
+            printf("Double");
+            break;
+        case T_long:
+            printf("Long");
+            break;
+        case T_string:
+            printf("String");
+            break;
+        default:
+            break;
+        }
+}
+
+void InputVal(Base *p) {
+    int k = 0;
+    char ch;
+    if (p) {
+        while (k != 1) {
+            
+            switch (p->type) {
+            case T_char:
+                k = scanf("%[^\n]c", &((Char *)p)->ch);
+                break;
+            case T_double:
+                k = scanf("%lf", &((Double *)p)->data);
+                break;
+            case T_long:
+                k = scanf("%ld", &((Long *)p)->data);
+                break;
+            case T_string:
+                k = scanf("%s", ((String *)p)->str);
+                break;
+            default:
+                break;
+            }
+
+            if (!k) {
+                printf("Некорректный ввод, попробуй снова\n");
+            }
+            while(((ch = getchar()) != '\n') && (ch != EOF)); // замени на fflush(stdin);
+        }
+    
+    }
+
+}
+
+void PrintList(const List *l) {
+    Item *p;
+    if (l) {
+        if (l->head) {
+            int i = 0;
+            printf("Head: %p, Tail: %p\n\n", l->head, l->tail);
+            printf(" №\tItem\t\tType\tValue\n");
+            for (p = l->head; p; p = p->next) {
+                printf("%2d\t%p\t", i++, p);
+                PrintType(((Base *)p)->type);
+                putchar('\t');
+                PrintVal((Base *)p);
+                putchar('\n');
+            }
+        } else {
+            printf("List is empty.\n");
+        }
+    } else {
+        printf("ERROR: wrong list!\n");
+    }
+
+    putchar('\n');
 }
 
 void cls() {
@@ -53,125 +132,106 @@ void cls() {
 #endif
 }
 
-void menu() {
-    printf("1. Вывод всех элементов на экран\n");
-    printf("2. Добавление элемента в список\n");
-    printf("3. Добавление элемента в любое место списка\n");
-    printf("4. Подсчёт всех элементов в списке\n");
-    printf("5. Поиск элемента по индексу\n");
-    //printf("6. Поиска индекса по элементу\n"); Не имеет практической пользы для конечного пользователя
-    //printf("6. Исключение элемента из списка\n"); Утечка памяти
-    printf("6. Удаление элемента из списка\n");
-    printf("7. Полная очистка списка\n");
-    printf("0. Выход из программы\n");
+
+int main() {
+
+    List l = {0};
+    int choise = 0;
+
+    system("chcp 1251 > nul");
+
+
+    Base * a = Create(T_long);
+    Base * b = Create(T_double);
+    Base * c = Create(T_char);
+    Base * s = Create(T_string);
+
+    ((Long *)a)->data = 52;
+    ((Double *)b)->data = 1.52;
+    ((Char *)c)->ch = 'R';
+    strncpy(((String *)s)->str, "test string", 12);
+
+
+    add(&l, (Item *)a);
+    add(&l, (Item *)b);
+    add(&l, (Item *)c);
+    add(&l, (Item *)s);
+
+    const char *TypeName[] = 
+            { "(unknown)", "Long", "Double", "String", "Char" };
+
+    const char *Menu[] =
+            {"(none)",
+            "Добавить новый элемент",
+            "Вывести список",
+            "Поиск элементов",
+            "Сортировка",
+            "Подчёт элементов в списке",
+            "Удаление элемента",
+            "Очистка списка",
+            "Выход из программы"};
+    const char *SortMode[] = {"(none)", "По возрастанию", "По убыванию"};
+
+    do {
+        
+        choise = DoMenu(Menu, 9);
+        cls();
+        switch (choise) {
+        case 1:
+        {
+
+            DataType t = (DataType)DoMenu(TypeName, 5);
+            Base *new = Create(t);
+            InputVal(new);
+            add(&l, (Item *)new);
+            break;
+        }
+        case 2:
+            PrintList(&l);
+            break;
+        case 3:
+        {
+            List temp = {0};
+            printf("Значение для поиска: ");
+            char buff[MAX_STR_SIZE] = {'\0'};
+            scanf("%50s", buff);
+            search(&l, buff, &temp);
+            PrintList(&temp);
+            clear(&temp);
+            break;
+        }
+        case 4:
+            sort(&l, DoMenu(SortMode, 3) - 1);
+            break;
+        case 5:
+            printf("Кол-во элементов в списке: %d\n", count(&l));
+            break;
+        case 6:
+        {
+            int i = 0;
+            printf("Введите индекс для удаления: ");
+            scanf("%d", &i);
+            Delete(&l, i);
+            break;
+        }
+        case 7:
+            clear(&l);
+            printf("Cписок очищен\n");
+            break;
+        case 8:
+            printf("Выход из программы\n");
+            clear(&l);
+            break;
+        default:
+            printf("Такого пункта меню нет\n");
+            break;
+        }
+
+    } while (choise != 8);
+    
+
+    system("pause");
+
+    return 0;
+
 }
-
-int input(char *msg) {
-    double buff = 0;
-    char ch = '\0';
-    int flag = 1;
-
-    while (flag) {
-
-        if (msg) {
-            printf("%s", msg);
-        }
-        if (scanf("%lf", &buff) != 1 || buff - (int)buff != 0) {
-            printf("Некорректный ввод, попробуй снова\n");
-            while ((ch = getchar()) != '\n' && ch != EOF);
-        } else {
-            flag = 0;
-        }
-    }  
-
-    return (int)buff;
-}
-
-int entry(List *list) {
-    int code = 1, choise = 0, n = 0;
-    char ch = '\0';
-    Item *item = NULL;
-
-    menu();
-    choise = input("Выберите пункт: ");
-    cls();
-
-    switch (choise) {
-    case 0:
-        if (!is_empty(list)) {
-            printf("Очистка списка перед выходом\n");
-            clear(list);
-        }
-        code = 0;
-        break;
-    case 1:
-        listout(list);
-        break;
-    case 2:
-        if (!create_item(&item)) {
-            add(list, item);
-            printf("Элемент %p, добавлен в список\n", item);
-        } else {
-            printf("Memory allocation error! Please try again\n");
-        }
-        break;
-    case 3:
-        if (!create_item(&item)) {
-            listout(list);
-            printf("Элемент для вставки: %p\n", item);
-            n = input("Введите индекс для вставки: ");
-            insert(list, item, n);
-            cls();
-            listout(list);
-        } else {
-            printf("Memory allocation error! Please try again\n");
-        }
-        break;
-    case 4:
-        printf("Количество элементов в списке: %d\n", count(list));
-        break;
-    case 5:
-        listout(list);
-        n = input("Введите n: ");
-        print_item(getitem(list, n));
-        break;
-    case 6:
-        if (!is_empty(list)) {
-            listout(list);
-            n = input("Введите индекс элемента для удаления: ");
-            Delete(list, n);    
-            cls();
-            listout(list);
-        } else {
-            printf("Нет элементов для удаления\n");
-        }
-        break;
-    case 7:
-        if (is_empty(list)) {
-            printf("Список пуст!\n");
-        } else {
-            clear(list);
-        }
-        break;
-    default:
-        printf("Такого пункта меню нет, попробуй снова\n");
-        break;
-    }
-
-    //printf("Press enter to countinue...\n");
-    // while ((ch = getchar()) != '\n' && ch != EOF);
-    // getchar();
-    // cls();
-
-    return code;
-}
-
-void print_item(Item *item) {
-    if (!item) {
-        printf("Пустой элемент\n");
-    } else {
-        printf("%p\t%p\n", item->prev, item->next);
-    }
-}
-
-
