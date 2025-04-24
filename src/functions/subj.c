@@ -28,7 +28,73 @@ bool check_availability(const void* shape) {
 
 /* Базовые функции */
 
+// Base * Create(PieceType t) {
+//     Base * p = NULL;
+//     switch (t) {
+//         case T_Pawn:
+//             p = malloc(sizeof(Pawn));
+//             break;
+//         case T_Rook:
+//             p = malloc(sizeof(Rook));
+//             break;
+//         case T_Knight:
+//             p = malloc(sizeof(Knight));
+//             break;
+//         case T_Bishop:
+//             p = malloc(sizeof(Bishop));
+//             break;
+//         case T_Queen:
+//             p = malloc(sizeof(Queen));
+//             break;
+//         case T_King:
+//             p = malloc(sizeof(King));
+//             break;
+//     }
+//     if (p) {
+//         p->type = t;
+//         p->x = 0, p->y = 0;
+
+//         if (t == T_Pawn || t == T_Rook) { // Если фигура - это пешка или ладья
+//             p->moves = CAN_MOVE_V | (t == T_Rook) ? CAN_MOVE_H : 0;
+//         } else if (t == T_Queen || t == T_King) { // Если фигура - это ферзь или король
+//             p->moves = CAN_MOVE_H | CAN_MOVE_V | CAN_MOVE_D;
+//         } else if (t == T_Bishop) { // Если наш слоняра
+//             p->moves = CAN_MOVE_D;
+//         } else { // Если мы не попали ни в одно из условий выше, значит текущая фигура - конь
+//             p->moves = CAN_MOVE_K;
+//         }
+//     }
+
+//     return p;
+// }
+
+void PawnInit(void *pawn) {
+    
+}
+
+void RookInit(void *rook) {
+
+}
+
+void KnightInit(void *knight) {
+
+}
+
+void BishopInit(void *bishop) {
+
+}
+
+void QueenInit(void *queen) {
+
+}
+
+void KingInit(void *king) {
+
+}
+
 Base * Create(PieceType t) {
+    void (*init[])(void *base) = {NULL, PawnInit, RookInit, KnightInit, BishopInit, QueenInit, KingInit};
+
     Base * p = NULL;
     switch (t) {
         case T_Pawn:
@@ -44,29 +110,23 @@ Base * Create(PieceType t) {
             p = malloc(sizeof(Bishop));
             break;
         case T_Queen:
-            p = malloc(sizeof(Queen));
+            p = malloc(sizeof(Queen));            
             break;
         case T_King:
             p = malloc(sizeof(King));
             break;
+        default:
+            break;
     }
+
     if (p) {
         p->type = t;
-        p->x = 0, p->y = 0;
-
-        if (t == T_Pawn || t == T_Rook) { // Если фигура - это пешка или ладья
-            p->moves = CAN_MOVE_V | (t == T_Rook) ? CAN_MOVE_H : 0;
-        } else if (t == T_Queen || t == T_King) { // Если фигура - это ферзь или король
-            p->moves = CAN_MOVE_H | CAN_MOVE_V | CAN_MOVE_D;
-        } else if (t == T_Bishop) { // Если наш слоняра
-            p->moves = CAN_MOVE_D;
-        } else { // Если мы не попали ни в одно из условий выше, значит текущая фигура - конь
-            p->moves = CAN_MOVE_K;
-        }
+        init[(int)t](p);
     }
 
     return p;
 }
+
 
 void input(Base *shape) {
 

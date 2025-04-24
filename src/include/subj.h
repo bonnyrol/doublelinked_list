@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 typedef enum {
-    //T_None, // Фигура не определена
+    T_None, // Фигура не определена
     T_Pawn, // Пешка
     T_Rook, // Ладья
     T_Knight, // Конь
