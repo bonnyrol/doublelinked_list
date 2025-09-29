@@ -14,89 +14,24 @@ typedef enum {
     T_King // Король
 } PieceType;
 
-typedef long int field;
-
+typedef enum {
+    black = false,
+    white = true
+} chess_color;
 typedef struct {
     Item *next;
     Item *prev;
     PieceType type;
-    bool color;
+    bool color; // false - чёрный, true - белый
     char x;
     int y;
-    char moves;
+    // char moves;
 } Base;
- 
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Pawn;
-
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Rook;
-
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Knight;
-
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Bishop;
-
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} Queen;
-
-typedef struct {
-    Item *next;
-    Item *prev;
-    PieceType type;
-    bool color;
-    char x;
-    int y;
-    char moves;
-} King;
-
-#define CAN_MOVE_H 1 /* Может двигаться горизонтально */
-#define CAN_MOVE_V 2 /* Может двигаться вертикально */
-#define CAN_MOVE_D 4 /* Может дваигаться по диагонали */
-#define CAN_MOVE_K 8 /* Двигается как конь*/
-
-/* piece->moves = CAN_MOVE_H | CAN_MOVE_V | CAN_MOVE_D */
 
 void sort(List *l);
-Base * Create(PieceType t);
-void print(const Base *p);
-void input(Base *shape);
+Base *Create(PieceType t);
+void search_attacking(List *src, List *dst, const char x, const char y);
+void search_by_color(List *src, List *dst, const bool color);
 
 
 #endif // SUBJ_H_

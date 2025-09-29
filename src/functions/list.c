@@ -1,8 +1,8 @@
-#include "../include/doublelinked.h"
+#include "../include/list.h"
 
 void add(List *list, Item *item) {
     if (list && item) {
-        if (is_empty(list) && (!item->next || !item->prev)) {
+        if (is_empty(list)) {
             list->head = item, list->tail = item;
             item->next = NULL, item->prev = NULL; 
         } else {
@@ -44,10 +44,8 @@ int count(const List *list) {
 int create_item(Item **item) {
     int code = 0;
 
-    *item = NULL;
-
     *item = calloc(1, sizeof(Item));
-    if (!*item) {
+    if (!item) {
         code = 1;
     }
     

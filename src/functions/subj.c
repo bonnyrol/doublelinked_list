@@ -1,119 +1,164 @@
 #include "../include/subj.h"
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    Item *next;
+    Item *prev;
+    PieceType type;
+    bool color;
+    char x;
+    int y;
+} Pawn;
+
+typedef struct {
+    Item *next;
+    Item *prev;
+    PieceType type;
+    bool color;
+    char x;
+    int y;
+} Rook;
+
+typedef struct {
+    Item *next;
+    Item *prev;
+    PieceType type;
+    bool color;
+    char x;
+    int y;
+} Knight;
+
+typedef struct {
+    Item *next;
+    Item *prev;
+    PieceType type;
+    bool color;
+    char x;
+    int y;
+} Bishop;
+
+typedef struct {
+    Item *next;
+    Item *prev;
+    PieceType type;
+    bool color;
+    char x;
+    int y;   
+} Queen;
+
+typedef struct {
+    Item *next;
+    Item *prev;
+    PieceType type;
+    bool color;
+    char x;
+    int y;
+} King;
+
 
 /* Вспомогательные, или инкапсулированные функции, которые требуются 
 * только для работы в данном контексте. Интерфейс к ним не предоставляется */
 
-static field f = 0;
+Base* cpy(Base *src) {
 
-int get_bit(const int a, const int i) {
-    return (a & (1 << i)) >> i;
+    Base *dst = Create(src->type);
+
+    size_t bytes_to_copy = 0;
+
+    switch (src->type) {
+    case T_Pawn:
+        bytes_to_copy = sizeof(Pawn);
+        break;
+
+    case T_Rook:
+        bytes_to_copy = sizeof(Rook);
+        break;
+
+    case T_Knight:
+        bytes_to_copy = sizeof(Knight);
+        break;
+
+    case T_Bishop:
+        bytes_to_copy = sizeof(Bishop);
+        break;
+
+    case T_Queen:
+        bytes_to_copy = sizeof(Queen);
+        break;
+
+    case T_King:
+        bytes_to_copy = sizeof(King);
+        break;
+
+    default:
+        break;
+    }
+
+    memcpy(dst, src, bytes_to_copy);
+    dst->next = NULL, dst->prev = NULL;
+
+    return dst;
 }
 
-int set_bit(int a, const int i, const int bit) {
-    return (bit) ? (a | (1 << i)) : (~(1 << i) & a);
-}
+bool is_attack(Base *shape, char x, int y) {
+    bool result = false;
 
-int convert(const void* shape) {
-    Base s = *(Base *)shape;
+    switch (shape->type) {
+    case T_Pawn:
+        result = ((shape->color ? shape->y - 1 : shape->y + 1) == y && \
+            (shape->x - 1 == x || shape->x + 1 == x));
+        break;
+    case T_Rook:
+        result = shape->x == x || shape->y == y;
+        break;
+    case T_Knight:
+        if ((shape->y + 2 == y || shape->y - 2 == y) && (shape->x + 1 == x || shape->x - 1 == x)) {
+            result = true;
+        } else if ((shape->x + 2 == x || shape->x - 2 == x) && (shape->y + 1 == y || shape->y - 1 == y)) {
+            result = true;
+        }
+        break;
+    case T_Bishop:
+        result = abs(shape->x - x) == abs(shape->y - y);
+        break;
+    case T_Queen:
+        result = ((shape->x == x || shape->y == y) || \
+            (abs(shape->x - x) == abs(shape->y - y)));
+        break;
+    case T_King:
+        result = (shape->x + 1 == x || shape->x - 1 == x) && \
+            (shape->y + 1 == y || shape->y - 1 == y);
+        break;
+    default:
+        break;
+    }
 
-    return (s.x - 'a') * 8 + s.y;
-}
-
-bool check_availability(const void* shape) {
-    return !get_bit(f, convert(shape));
-}
-
-/* Базовые функции */
-
-// Base * Create(PieceType t) {
-//     Base * p = NULL;
-//     switch (t) {
-//         case T_Pawn:
-//             p = malloc(sizeof(Pawn));
-//             break;
-//         case T_Rook:
-//             p = malloc(sizeof(Rook));
-//             break;
-//         case T_Knight:
-//             p = malloc(sizeof(Knight));
-//             break;
-//         case T_Bishop:
-//             p = malloc(sizeof(Bishop));
-//             break;
-//         case T_Queen:
-//             p = malloc(sizeof(Queen));
-//             break;
-//         case T_King:
-//             p = malloc(sizeof(King));
-//             break;
-//     }
-//     if (p) {
-//         p->type = t;
-//         p->x = 0, p->y = 0;
-
-//         if (t == T_Pawn || t == T_Rook) { // Если фигура - это пешка или ладья
-//             p->moves = CAN_MOVE_V | (t == T_Rook) ? CAN_MOVE_H : 0;
-//         } else if (t == T_Queen || t == T_King) { // Если фигура - это ферзь или король
-//             p->moves = CAN_MOVE_H | CAN_MOVE_V | CAN_MOVE_D;
-//         } else if (t == T_Bishop) { // Если наш слоняра
-//             p->moves = CAN_MOVE_D;
-//         } else { // Если мы не попали ни в одно из условий выше, значит текущая фигура - конь
-//             p->moves = CAN_MOVE_K;
-//         }
-//     }
-
-//     return p;
-// }
-
-void PawnInit(void *pawn) {
-    
-}
-
-void RookInit(void *rook) {
-
-}
-
-void KnightInit(void *knight) {
-
-}
-
-void BishopInit(void *bishop) {
-
-}
-
-void QueenInit(void *queen) {
-
-}
-
-void KingInit(void *king) {
-
+    return result;
 }
 
 Base * Create(PieceType t) {
-    void (*init[])(void *base) = {NULL, PawnInit, RookInit, KnightInit, BishopInit, QueenInit, KingInit};
 
     Base * p = NULL;
     switch (t) {
         case T_Pawn:
-            p = malloc(sizeof(Pawn));
+            p = calloc(1, sizeof(Pawn));
             break;
         case T_Rook:
-            p = malloc(sizeof(Rook));
+            p = calloc(1, sizeof(Rook));
             break;
         case T_Knight:
-            p = malloc(sizeof(Knight));
+            p = calloc(1, sizeof(Knight));
             break;
         case T_Bishop:
-            p = malloc(sizeof(Bishop));
+            p = calloc(1, sizeof(Bishop));
             break;
         case T_Queen:
-            p = malloc(sizeof(Queen));            
+            p = calloc(1, sizeof(Queen));            
             break;
         case T_King:
-            p = malloc(sizeof(King));
+            p = calloc(1, sizeof(King));
             break;
         default:
             break;
@@ -121,47 +166,69 @@ Base * Create(PieceType t) {
 
     if (p) {
         p->type = t;
-        init[(int)t](p);
     }
 
     return p;
 }
 
+void search_by_color(List *src, List *dst, const bool color) {
 
-void input(Base *shape) {
+    Item* i = src->head;
 
+    while (i) {
 
-    char ch;
+        Base *temp = (Base*)i;
 
-    printf("0 - black, 1 - white: ");
-    while (scanf("%d", (int *)&shape->color) != 1 ) {
-        printf("color govno\n");
-        while ((ch = getchar()) != '\n' && (ch != EOF));
+        if (temp->color == color) {
+            add(dst, (Item*)cpy(temp));
+        }
+
+        i = i->next;
     }
-    
-    while(true) {
-        
-
-
-    }
-
-
-
-
-    // do {
-    //    int  k = scanf("%c", &shape->x);
-    //     if (k != 2) {
-    //         printf("Некорректный ввод, k = %d\n", k);
-    //     } else if (shape->x < 'a' || shape->x > 'h') {
-    //         printf("govno\n");
-    //     } else if (!check_availability(shape)) {
-    //         continue;
-    //     } else {
-    //         break;
-    //     }   
-
-    // } while (1);
-    
     
 }
 
+void sort(List *l) {
+    List new = {0};
+
+    insert(&new, Remove(l, 0), 0);
+
+    Item *unsorted = l->head, *sorted = NULL;
+    
+    while (unsorted) {
+        sorted = new.head;
+        while (sorted && ((Base *)unsorted)->type >= ((Base *)sorted)->type) {
+            sorted = sorted->next;
+        }
+        if (sorted) {
+            Base *copy = cpy((Base *)unsorted);
+            
+            insert(&new, (Item *)copy, getindex(&new, sorted));
+        } else {
+            Base *copy = cpy((Base *)unsorted);
+
+            add(&new, (Item *)copy);
+        }
+        unsorted = unsorted->next;
+    }
+    
+    clear(l);
+    *l = new;
+}
+
+void search_attacking(List *src, List *dst, const char x, const char y) {
+
+    Item* i = src->head;
+
+    while (i) {
+
+        Base *temp = (Base*)i;
+
+        if (is_attack(temp, x, y)) {
+            add(dst, (Item*)cpy(temp));
+        }
+
+        i = i->next;
+    }
+    
+}
