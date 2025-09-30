@@ -45,7 +45,7 @@ int create_item(Item **item) {
     int code = 0;
 
     *item = calloc(1, sizeof(Item));
-    if (!item) {
+    if (!*item) {
         code = 1;
     }
     
@@ -143,8 +143,11 @@ Item* Remove(List *list, const int n) {
                 temp = result->next;
                 temp->prev = result->prev;
             }
+
+            result->next = NULL, result->prev = NULL;
         }
     }
+
 
     return result;
 }
