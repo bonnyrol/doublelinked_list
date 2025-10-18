@@ -1,10 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
+TESTFLAGS = -lm -lcheck -lsubunit -lpthread
 LIB = list.a
 EXEC = main.out
 MENU = main.c
 OBJDIR = obj
 WORKDIR = functions
+TESTDIR = tests
 
 SOURCES = $(wildcard $(WORKDIR)/*.c)
 OBJECTS = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.c=.o)))
