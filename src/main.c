@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "include/doublelinked.h"
+#include "include/list.h"
 
 /*Функиця для очитски экрана*/
 void cls();

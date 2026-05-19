@@ -1,4 +1,4 @@
-#include "../include/doublelinked.h"
+#include "../include/list.h"
 
 void add(List *list, Item *item) {
     if (list && item) {

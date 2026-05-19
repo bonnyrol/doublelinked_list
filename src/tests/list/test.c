@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
-#include "../../include/doublelinked.h"
-#include "../test.h"
+#include "../../include/list.h"
+#include "test.h"
 
 int add_n(List *l, const int n) {
     int code = 0;
